@@ -1,0 +1,38 @@
+void sendHello(JID userId);
+void sendRqsUserlist();
+void sendAddRoom(const Snake::JRoom&);
+void sendEnterRoom(JID roomId);
+void sendEscapeRoom();
+void sendRqsRoomlist();
+
+-1 means no room
+hello
+	c-s:JID userId
+	s-c:JCode result
+roomList
+	null
+	QList<JRoom> roomlist
+(废弃)userListInRoom。userlist已经进入JRoom，不再需要单独传送
+	JID roomId
+	JID roomId , QList<JID> userlist
+addRoom
+	JRoom room
+	JID roomId
+enterRoom
+	JID roomId
+    JID roomId , JCode code
+RoomInfo
+    JID roomId
+    JRoom room
+(废弃)roomAdded：合并入roomInfo
+	null
+	JRoom room
+roomRemoved
+	null
+	JID roomId
+(废弃)roomUpdated：合并入roomInfo
+	null
+	JRoom
+roomChat:
+    QString text
+    JID userId , JID roomId , QString text
