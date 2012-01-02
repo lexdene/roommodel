@@ -12,7 +12,7 @@ public:
     JCode sendGameData(const QByteArray& data);
 protected:
 	void process(const QByteArray& data);
-	EProcessorType getProcessorType()const;
+    JType getProcessorType()const;
 };
 
 #endif // JROOMMODELCLIENTGAMEDATAPROCESSOR_H

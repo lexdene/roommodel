@@ -82,7 +82,7 @@ void JRoomModelServerRoomProcessor::process(const QByteArray& data)
 	}
 }
 
-EProcessorType JRoomModelServerRoomProcessor::getProcessorType()const
+JType JRoomModelServerRoomProcessor::getProcessorType()const
 {
 	return RoomProcessor;
 }

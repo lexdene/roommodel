@@ -28,7 +28,7 @@ private:
 	explicit JRoomModelClientRoomProcessor(JSession* session,JSocketBase *socket);
 protected:
 	void process(const QByteArray& data);
-	EProcessorType getProcessorType()const;
+    JType getProcessorType()const;
 
 	virtual void processHello(JCode result);
 	virtual void processRoomList(const QList<JRoom>& roomlist);

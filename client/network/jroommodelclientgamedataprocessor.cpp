@@ -31,7 +31,7 @@ void JRoomModelClientGameDataProcessor::process(const QByteArray& data)
 	app->processGameData(data);
 }
 
-EProcessorType JRoomModelClientGameDataProcessor::getProcessorType()const
+JType JRoomModelClientGameDataProcessor::getProcessorType()const
 {
 	return GameDataProcessor;
 }

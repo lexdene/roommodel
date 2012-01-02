@@ -26,7 +26,7 @@ void JRoomModelServerGameDataProcessor::process(const QByteArray& data)
     am->processGameData(roomId,at,data);
 }
 
-EProcessorType JRoomModelServerGameDataProcessor::getProcessorType()const
+JType JRoomModelServerGameDataProcessor::getProcessorType()const
 {
 	return GameDataProcessor;
 }

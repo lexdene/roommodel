@@ -9,7 +9,7 @@ class JRoomModelServerGameDataProcessor : public JServerNetworkDataProcessorBase
 public:
 	explicit JRoomModelServerGameDataProcessor(JSession* session,JSocketBase *socket);
 	void process(const QByteArray& data);
-    EProcessorType getProcessorType()const;
+    JType getProcessorType()const;
 public slots:
     JCode sendGameData(const QByteArray& data);
 };

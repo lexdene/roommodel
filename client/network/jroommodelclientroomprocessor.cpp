@@ -138,7 +138,7 @@ void JRoomModelClientRoomProcessor::process(const QByteArray& data)
 	}
 }
 
-EProcessorType JRoomModelClientRoomProcessor::getProcessorType()const
+JType JRoomModelClientRoomProcessor::getProcessorType()const
 {
 	return RoomProcessor;
 }

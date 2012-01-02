@@ -1,8 +1,8 @@
 #ifndef JROOMPROTOCOL_H
 #define JROOMPROTOCOL_H
 
-const EProcessorType RoomProcessor = EPI_UserType_1;
-const EProcessorType GameDataProcessor = EPI_UserType_2;
+const JType RoomProcessor = EPI_UserType + 1;
+const JType GameDataProcessor = EPI_UserType + 2;
 
 enum ERoomProtocol{
 	ERP_Hello,

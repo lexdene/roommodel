@@ -17,7 +17,7 @@ class JRoomModelServerRoomProcessor : public JServerNetworkDataProcessorBase
 public:
 	explicit JRoomModelServerRoomProcessor(JSession* session,JSocketBase *socket);
 	void process(const QByteArray& data);
-	EProcessorType getProcessorType()const;
+    JType getProcessorType()const;
     void setPairedGameDataProcessor(JRoomModelServerGameDataProcessor* processor);
     JRoomModelServerGameDataProcessor* getPairedGameDataProcessor()const;
 private:
