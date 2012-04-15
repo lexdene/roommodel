@@ -1,10 +1,10 @@
+TEMPLATE = lib
 include(../../Dlut-Game-Platform/api/api.pri)
 include(../common/common.pri)
 QT       += network
 QT       -= gui
 
 TARGET = server
-TEMPLATE = lib
 
 SOURCES += \
 	network/jroommodelserver.cpp \

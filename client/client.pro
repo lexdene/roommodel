@@ -1,6 +1,6 @@
+TEMPLATE = lib
 include(../../Dlut-Game-Platform/api/api.pri)
 include(../common/common.pri)
-TEMPLATE = lib
 
 HEADERS += \
     network/jroommodelclientroomprocessor.h \
