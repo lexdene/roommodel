@@ -1,5 +1,6 @@
 #include "jclientapplicationbase.h"
 #include "network/jroommodelclientgamedataprocessor.h"
+#include "network/jroommodelclientsocket.h"
 
 #include <Helper/JGameClientArgumentAnalyser>
 
@@ -8,10 +9,10 @@ JClientApplicationBase* JClientApplicationBase::s_instance;
 JClientApplicationBase::JClientApplicationBase(QObject *parent) :
     QObject(parent)
 {
-    m_gamedataProcessor = JRoomModelClientGameDataProcessor::getInstance();
+    m_gamedataProcessor = JRoomModelClientGameDataProcessor::instance();
 }
 
-JClientApplicationBase* JClientApplicationBase::getInstance()
+JClientApplicationBase* JClientApplicationBase::instance()
 {
 	return s_instance;
 }
@@ -23,7 +24,7 @@ void JClientApplicationBase::setInstance(JClientApplicationBase* instance)
 
 JID JClientApplicationBase::getMyUserId()const
 {
-    return JGameClientArgumentAnalyser::getInstance()->getUserId();
+    return JGameClientArgumentAnalyser::instance()->getUserId();
 }
 
 void JClientApplicationBase::sendData(const QByteArray& data)

@@ -5,7 +5,7 @@
 JRoomListModel::JRoomListModel(QObject *parent) :
     QAbstractTableModel(parent)
 {
-    m_processor = JRoomModelClientRoomProcessor::getInstance();
+    m_processor = JRoomModelClientRoomProcessor::instance();
     connect(m_processor,
             SIGNAL(receiveRoomInfo(JRoom)),
             SLOT(on_processor_receiveRoomInfo(JRoom)));

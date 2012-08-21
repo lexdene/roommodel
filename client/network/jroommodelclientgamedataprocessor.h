@@ -1,18 +1,19 @@
 #ifndef JROOMMODELCLIENTGAMEDATAPROCESSOR_H
 #define JROOMMODELCLIENTGAMEDATAPROCESSOR_H
 
-#include <Processor/JClientNetworkDataProcessorBase>
+#include <Processor/JProcessor>
 
-class JRoomModelClientGameDataProcessor : public JClientNetworkDataProcessorBase
+class JRoomModelClientGameDataProcessor : public JProcessor
 {
     Q_OBJECT
-	explicit JRoomModelClientGameDataProcessor(JSession* session,JSocketBase *socket);
 public:
-	static JRoomModelClientGameDataProcessor* getInstance();
+	static JRoomModelClientGameDataProcessor* instance();
     JCode sendGameData(const QByteArray& data);
 protected:
-	void process(const QByteArray& data);
+	void process(JSocket* socket , const QByteArray& data);
     JType getProcessorType()const;
+private:
+	explicit JRoomModelClientGameDataProcessor(QObject* parent = 0);
 };
 
 #endif // JROOMMODELCLIENTGAMEDATAPROCESSOR_H

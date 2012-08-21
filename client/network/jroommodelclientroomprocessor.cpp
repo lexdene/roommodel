@@ -2,21 +2,15 @@
 #include "jroommodelclientsocket.h"
 #include "../common/jroomprotocol.h"
 
-JRoomModelClientRoomProcessor::JRoomModelClientRoomProcessor(JSession* session,JSocketBase *socket) :
-	JClientNetworkDataProcessorBase(session,socket)
+JRoomModelClientRoomProcessor::JRoomModelClientRoomProcessor(QObject* parent) :
+	JProcessor(parent)
 {
 }
 
-JRoomModelClientRoomProcessor* JRoomModelClientRoomProcessor::getInstance()
+JRoomModelClientRoomProcessor* JRoomModelClientRoomProcessor::instance()
 {
-	static JRoomModelClientRoomProcessor* instance = NULL;
-	if(NULL == instance){
-		JRoomModelClientSocket* socket = JRoomModelClientSocket::getInstance();
-		JSession* session = socket->getSession();
-		instance = new JRoomModelClientRoomProcessor(session,socket);
-		socket->registerProcessor(instance);
-	}
-	return instance;
+	static JRoomModelClientRoomProcessor instance;
+	return &instance;
 }
 
 void JRoomModelClientRoomProcessor::sendHello(JID userId)
@@ -25,7 +19,7 @@ void JRoomModelClientRoomProcessor::sendHello(JID userId)
     QDataStream outstream(&outdata,QIODevice::WriteOnly);
     outstream<<(JID)ERP_Hello;
     outstream<<userId;
-    sendData(outdata);
+    sendData(JRoomModelClientSocket::instance(),outdata);
 }
 
 void JRoomModelClientRoomProcessor::requestRoomList()
@@ -33,7 +27,7 @@ void JRoomModelClientRoomProcessor::requestRoomList()
     QByteArray outdata;
     QDataStream outstream(&outdata,QIODevice::WriteOnly);
     outstream<<(JID)ERP_RoomList;
-    sendData(outdata);
+    sendData(JRoomModelClientSocket::instance(),outdata);
 }
 
 void JRoomModelClientRoomProcessor::requestAddRoom(const JRoom& room)
@@ -42,7 +36,7 @@ void JRoomModelClientRoomProcessor::requestAddRoom(const JRoom& room)
     QDataStream outstream(&outdata,QIODevice::WriteOnly);
     outstream<<(JID)ERP_AddRoom;
     outstream<<room;
-    sendData(outdata);
+    sendData(JRoomModelClientSocket::instance(),outdata);
 }
 
 void JRoomModelClientRoomProcessor::requestEnterRoom(JID roomId)
@@ -51,7 +45,7 @@ void JRoomModelClientRoomProcessor::requestEnterRoom(JID roomId)
     QDataStream outstream(&outdata,QIODevice::WriteOnly);
     outstream<<(JID)ERP_EnterRoom;
     outstream<<roomId;
-    sendData(outdata);
+    sendData(JRoomModelClientSocket::instance(),outdata);
 }
 
 void JRoomModelClientRoomProcessor::requestRoomInfo(JID roomId)
@@ -60,7 +54,7 @@ void JRoomModelClientRoomProcessor::requestRoomInfo(JID roomId)
     QDataStream outstream(&outdata,QIODevice::WriteOnly);
     outstream<<(JID)ERP_RoomInfo;
     outstream<<roomId;
-    sendData(outdata);
+    sendData(JRoomModelClientSocket::instance(),outdata);
 }
 
 void JRoomModelClientRoomProcessor::sendRoomChat(const QString& text)
@@ -69,10 +63,10 @@ void JRoomModelClientRoomProcessor::sendRoomChat(const QString& text)
     QDataStream outstream(&outdata,QIODevice::WriteOnly);
     outstream<<(JID)ERP_RoomChat;
     outstream<<text;
-    sendData(outdata);
+    sendData(JRoomModelClientSocket::instance(),outdata);
 }
 
-void JRoomModelClientRoomProcessor::process(const QByteArray& data)
+void JRoomModelClientRoomProcessor::process(JSocket* , const QByteArray& data)
 {
 	QDataStream stream(data);
 	JID protocol;

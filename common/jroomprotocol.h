@@ -1,6 +1,8 @@
 #ifndef JROOMPROTOCOL_H
 #define JROOMPROTOCOL_H
 
+#include <Processor/ProcessorType>
+
 const JType RoomProcessor = EPI_UserType + 1;
 const JType GameDataProcessor = EPI_UserType + 2;
 

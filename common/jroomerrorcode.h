@@ -1,7 +1,7 @@
 #ifndef JROOMERRORCODE_H
 #define JROOMERRORCODE_H
 
-#include <Global/CodeError>
+#include <Global/ErrorCode>
 
 const JCode ERoomModelCode = 0x1000;
 

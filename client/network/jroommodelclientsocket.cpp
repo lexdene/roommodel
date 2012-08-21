@@ -1,20 +1,23 @@
 #include "jroommodelclientsocket.h"
 
-#include <QTcpSocket>
-#include <QCoreApplication>
+#include "jroommodelclientroomprocessor.h"
+#include "jroommodelclientgamedataprocessor.h"
 
 JRoomModelClientSocket::JRoomModelClientSocket(QObject *parent) :
-	JClientSocketBase(new QTcpSocket(QCoreApplication::instance()),parent)
+	JSocket(0,parent)
 {
 }
 
-JRoomModelClientSocket* JRoomModelClientSocket::getInstance()
+JRoomModelClientSocket* JRoomModelClientSocket::instance()
 {
 	static JRoomModelClientSocket* instance = NULL;
 	if(NULL == instance){
+		static QObject parent;
 		instance = new JRoomModelClientSocket(
-					QCoreApplication::instance()
+					&parent
 					);
+		instance->registerProcessor( JRoomModelClientRoomProcessor::instance() );
+		instance->registerProcessor( JRoomModelClientGameDataProcessor::instance() );
 	}
 	return instance;
 }

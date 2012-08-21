@@ -15,7 +15,7 @@ class JRoomManager : public QObject
 {
     Q_OBJECT
 public:
-	static JRoomManager* getInstance();
+	static JRoomManager* instance();
 	JCode addUser(JID userId);
 	JCode removeUser(JID userId);
 	JID addRoom(JRoom room);
@@ -33,7 +33,7 @@ public:
 signals:
 	void roomAdded(const JRoom& room);
 	void roomRemoved(JID roomId);
-    void roomUpdated(const JRoom& room);
+	void roomUpdated(const JRoom& room);
 private:
 	explicit JRoomManager(QObject *parent = 0);
 	JApplicationManager* m_applicationManager;

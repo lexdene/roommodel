@@ -12,7 +12,7 @@ class JClientApplicationBase : public QObject
 {
     Q_OBJECT
 public:
-	static JClientApplicationBase* getInstance();
+	static JClientApplicationBase* instance();
 	static void setInstance(JClientApplicationBase* instance);
     virtual void processGameData(const QByteArray& data)=0;
     virtual void createRoomInfo(JRoom&)=0;

@@ -1,5 +1,5 @@
 TEMPLATE = lib
-include(../../Dlut-Game-Platform/api/api.pri)
+include(../dgpapi.pri)
 include(../common/common.pri)
 QT       += network
 QT       -= gui
@@ -10,6 +10,7 @@ SOURCES += \
 	network/jroommodelserver.cpp \
     network/jroommodelserverroomprocessor.cpp \
     network/jroommodelservergamedataprocessor.cpp \
+    network/jroommodelserverdisconnectedprocessor.cpp \
     manager/jroommanager.cpp \
     application/jserverapplicationbase.cpp \
     manager/japplicationmanager.cpp \
@@ -19,6 +20,7 @@ HEADERS += \
 	network/jroommodelserver.h \
     network/jroommodelserverroomprocessor.h \
     network/jroommodelservergamedataprocessor.h \
+    network/jroommodelserverdisconnectedprocessor.h \
     manager/jroommanager.h \
     application/jserverapplicationbase.h \
     manager/japplicationmanager.h \

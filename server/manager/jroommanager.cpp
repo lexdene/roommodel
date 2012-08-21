@@ -6,7 +6,7 @@
 
 #include <QDebug>
 
-JRoomManager* JRoomManager::getInstance()
+JRoomManager* JRoomManager::instance()
 {
 	static JRoomManager* instance = NULL;
 	if(NULL == instance){

@@ -8,7 +8,7 @@
 #include "../common/jroomerrorcode.h"
 
 #include <Helper/JGameClientArgumentAnalyser>
-#include <Global/CodeError>
+#include <Global/ErrorCode>
 
 #include <QMessageBox>
 #include <QInputDialog>
@@ -17,7 +17,7 @@ JRoomWidget::JRoomWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::JRoomWidget)
 {
-    m_processor = JRoomModelClientRoomProcessor::getInstance();
+    m_processor = JRoomModelClientRoomProcessor::instance();
     connect(m_processor,
             SIGNAL(receiveHelloResult(JCode)),
             SLOT(On_processor_receiveHelloResult(JCode)));
@@ -30,8 +30,10 @@ JRoomWidget::JRoomWidget(QWidget *parent) :
     ui->setupUi(this);
 	JRoomListModel* model = new JRoomListModel(this);
 	ui->tableView_roomlist->setModel(model);
-    m_processor->sendHello(JGameClientArgumentAnalyser::getInstance()->getUserId());
-    m_processor->requestRoomList();
+	m_processor->sendHello(
+		JGameClientArgumentAnalyser::instance()->getUserId()
+	);
+	m_processor->requestRoomList();
 }
 
 JRoomWidget::~JRoomWidget()
@@ -54,7 +56,7 @@ void JRoomWidget::on_btn_addroom_clicked()
             );
     if(ok){
         room.setTitle(room_title);
-        JClientApplicationBase* app=JClientApplicationBase::getInstance();
+        JClientApplicationBase* app=JClientApplicationBase::instance();
         app->createRoomInfo(room);
         m_processor->requestAddRoom(room);
     }

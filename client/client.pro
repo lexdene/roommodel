@@ -1,5 +1,5 @@
 TEMPLATE = lib
-include(../../Dlut-Game-Platform/api/api.pri)
+include(../dgpapi.pri)
 include(../common/common.pri)
 
 HEADERS += \

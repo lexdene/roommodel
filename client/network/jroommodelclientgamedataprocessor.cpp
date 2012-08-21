@@ -3,31 +3,25 @@
 #include "../common/jroomprotocol.h"
 #include "application/jclientapplicationbase.h"
 
-JRoomModelClientGameDataProcessor::JRoomModelClientGameDataProcessor(JSession* session,JSocketBase *socket) :
-	JClientNetworkDataProcessorBase(session,socket)
+JRoomModelClientGameDataProcessor::JRoomModelClientGameDataProcessor(QObject* parent) :
+	JProcessor(parent)
 {
 }
 
-JRoomModelClientGameDataProcessor* JRoomModelClientGameDataProcessor::getInstance()
+JRoomModelClientGameDataProcessor* JRoomModelClientGameDataProcessor::instance()
 {
-	static JRoomModelClientGameDataProcessor* instance = NULL;
-	if(NULL == instance){
-		JRoomModelClientSocket* socket = JRoomModelClientSocket::getInstance();
-		JSession* session = socket->getSession();
-		instance = new JRoomModelClientGameDataProcessor(session,socket);
-		socket->registerProcessor(instance);
-	}
-	return instance;
+	static JRoomModelClientGameDataProcessor instance;
+	return &instance;
 }
 
 JCode JRoomModelClientGameDataProcessor::sendGameData(const QByteArray& data)
 {
-    return sendData(data);
+    return sendData(JRoomModelClientSocket::instance(),data);
 }
 
-void JRoomModelClientGameDataProcessor::process(const QByteArray& data)
+void JRoomModelClientGameDataProcessor::process(JSocket* , const QByteArray& data)
 {
-	JClientApplicationBase* app = JClientApplicationBase::getInstance();
+	JClientApplicationBase* app = JClientApplicationBase::instance();
 	app->processGameData(data);
 }
 

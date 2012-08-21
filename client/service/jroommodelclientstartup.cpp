@@ -2,8 +2,8 @@
 #include "network/jroommodelclientsocket.h"
 
 #include <Socket/JMainClientSocket>
-#include <DataStruct/SHost>
-#include <DataStruct/JElapsedTimer>
+#include <Util/SHost>
+#include <Util/JElapsedTimer>
 #include <Helper/JConnectHelper>
 #include <Helper/JGameClientArgumentAnalyser>
 
@@ -17,13 +17,13 @@ JRoomModelClientStartup::JRoomModelClientStartup(const QApplication& app)
 
 bool JRoomModelClientStartup::startup()
 {
-    JGameClientArgumentAnalyser *gcaa = JGameClientArgumentAnalyser::getInstance();
+    JGameClientArgumentAnalyser *gcaa = JGameClientArgumentAnalyser::instance();
     if(!gcaa->processArgument(m_app.arguments())){
         qDebug()<<"process argument failed.";
         return false;
     }
     // connect to main client
-    JMainClientSocket *mc_socket = JMainClientSocket::getInstance();
+    JMainClientSocket *mc_socket = JMainClientSocket::instance();
     JConnectHelper mc_connectHelper(mc_socket);
     mc_connectHelper.connectToHost(gcaa->getMainServer());
     if(!mc_connectHelper.waitForConnected(1000)){
@@ -31,7 +31,7 @@ bool JRoomModelClientStartup::startup()
         return false;
     }
     // connect to game server
-    JRoomModelClientSocket* rm_socket = JRoomModelClientSocket::getInstance();
+    JRoomModelClientSocket* rm_socket = JRoomModelClientSocket::instance();
     JConnectHelper rm_connectHelper(rm_socket);
     rm_connectHelper.connectToHost(gcaa->getGameServer());
     if(!rm_connectHelper.waitForConnected(1000)){

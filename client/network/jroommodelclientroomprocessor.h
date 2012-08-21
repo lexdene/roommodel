@@ -3,13 +3,13 @@
 
 #include "../../common/jroom.h"
 
-#include <Processor/JClientNetworkDataProcessorBase>
+#include <Processor/JProcessor>
 
-class JRoomModelClientRoomProcessor : public JClientNetworkDataProcessorBase
+class JRoomModelClientRoomProcessor : public JProcessor
 {
     Q_OBJECT
 public:
-	static JRoomModelClientRoomProcessor* getInstance();
+	static JRoomModelClientRoomProcessor* instance();
     void sendHello(JID userId);
     void requestRoomList();
     void requestAddRoom(const JRoom& room);
@@ -25,9 +25,9 @@ signals:
     void receiveRoomRemoved(JID roomId);
     void receiveRoomChat(JID userId,JID roomId,const QString& text);
 private:
-	explicit JRoomModelClientRoomProcessor(JSession* session,JSocketBase *socket);
+	explicit JRoomModelClientRoomProcessor(QObject* parent = 0);
 protected:
-	void process(const QByteArray& data);
+	void process(JSocket* socket , const QByteArray& data);
     JType getProcessorType()const;
 
 	virtual void processHello(JCode result);

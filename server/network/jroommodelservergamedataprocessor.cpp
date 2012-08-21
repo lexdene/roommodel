@@ -3,20 +3,27 @@
 #include "manager/japplicationmanager.h"
 #include "../common/jroomprotocol.h"
 
+#include <Socket/JSocket>
 #include <Session/JSession>
 
-JRoomModelServerGameDataProcessor::JRoomModelServerGameDataProcessor(JSession* session,JSocketBase *socket) :
-	JServerNetworkDataProcessorBase(session,socket)
+JRoomModelServerGameDataProcessor::JRoomModelServerGameDataProcessor(QObject* parent) :
+	JProcessor(parent)
 {
 }
 
-void JRoomModelServerGameDataProcessor::process(const QByteArray& data)
+JRoomModelServerGameDataProcessor* JRoomModelServerGameDataProcessor::instance()
 {
-    JID userId = getSession()->getUserId();
+	static JRoomModelServerGameDataProcessor instance;
+	return &instance;
+}
+
+void JRoomModelServerGameDataProcessor::process(JSocket* socket , const QByteArray& data)
+{
+    JID userId = socket->session()->userId();
     if(userId < 0){
         return;
     }
-	JRoomManager *rm = JRoomManager::getInstance();
+	JRoomManager *rm = JRoomManager::instance();
     JID roomId = rm->getRoomByUserId(userId);
     if(roomId < 0){
         return;
@@ -31,7 +38,7 @@ JType JRoomModelServerGameDataProcessor::getProcessorType()const
 	return GameDataProcessor;
 }
 
-JCode JRoomModelServerGameDataProcessor::sendGameData(const QByteArray& data)
+JCode JRoomModelServerGameDataProcessor::sendGameData(JSocket* socket , const QByteArray& data)
 {
-    return sendData(data);
+    return sendData(socket , data);
 }

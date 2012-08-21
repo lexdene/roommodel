@@ -7,28 +7,30 @@
 #include "jroommodelservergamedataprocessor.h"
 
 #include <Session/JSession>
-#include <Global/CodeError>
-#include <Socket/JSocketBase>
+#include <Global/ErrorCode>
+#include <Socket/JSocket>
 
 #include <QDebug>
 #include <QDataStream>
 
-JRoomModelServerRoomProcessor::JRoomModelServerRoomProcessor(JSession* session,JSocketBase *socket) :
-	JServerNetworkDataProcessorBase(session,socket)
+JRoomModelServerRoomProcessor::JRoomModelServerRoomProcessor(QObject* parent) :
+	JProcessor(parent)
 {
-    connect(socket,
-            SIGNAL(disconnected()),
-            SLOT(on_socket_disconnected()));
-	m_roomManager = JRoomManager::getInstance();
-    connect(m_roomManager,
-            SIGNAL(roomAdded(JRoom)),
-            SLOT(on_roommanager_roomAdded(JRoom)));
-    connect(m_roomManager,
-            SIGNAL(roomUpdated(JRoom)),
-            SLOT(on_roommanager_roomUpdated(JRoom)));
+//    connect(JRoomManager::instance(),
+//            SIGNAL(roomAdded(JRoom)),
+//            SLOT(on_roommanager_roomAdded(JRoom)));
+//    connect(JRoomManager::instance(),
+//            SIGNAL(roomUpdated(JRoom)),
+//            SLOT(on_roommanager_roomUpdated(JRoom)));
 }
 
-void JRoomModelServerRoomProcessor::process(const QByteArray& data)
+JRoomModelServerRoomProcessor* JRoomModelServerRoomProcessor::instance()
+{
+	static JRoomModelServerRoomProcessor instance;
+	return &instance;
+}
+
+void JRoomModelServerRoomProcessor::process(JSocket* socket , const QByteArray& data)
 {
 	QDataStream stream(data);
 	JID protocol;
@@ -38,33 +40,33 @@ void JRoomModelServerRoomProcessor::process(const QByteArray& data)
 		{
 			JID userId;
 			stream>>userId;
-			processHello(userId);
+			processHello(socket,userId);
 		}
 		break;
 	case ERP_RoomList:
 		{
-			processRoomList();
+			processRoomList(socket);
 		}
 		break;
 	case ERP_AddRoom:
 		{
 			JRoom room;
 			stream>>room;
-			processAddRoom(room);
+			processAddRoom(socket,room);
 		}
 		break;
 	case ERP_EnterRoom:
 		{
 			JID roomId;
 			stream>>roomId;
-			processEnterRoom(roomId);
+			processEnterRoom(socket,roomId);
 		}
 		break;
     case ERP_RoomInfo:
         {
             JID roomId;
             stream>>roomId;
-            processRoomInfo(roomId);
+            processRoomInfo(socket,roomId);
         }
         break;
 	case ERP_RoomRemoved:
@@ -74,7 +76,7 @@ void JRoomModelServerRoomProcessor::process(const QByteArray& data)
         {
             QString text;
             stream>>text;
-            processRoomChat(text);
+            processRoomChat(socket,text);
         }
         break;
 	default:
@@ -87,131 +89,121 @@ JType JRoomModelServerRoomProcessor::getProcessorType()const
 	return RoomProcessor;
 }
 
-void JRoomModelServerRoomProcessor::setPairedGameDataProcessor(JRoomModelServerGameDataProcessor* processor)
+void JRoomModelServerRoomProcessor::processHello(JSocket* socket , JID userId)
 {
-    m_gamedataProcessor = processor;
-}
-
-JRoomModelServerGameDataProcessor* JRoomModelServerRoomProcessor::getPairedGameDataProcessor()const
-{
-    return m_gamedataProcessor;
-}
-
-void JRoomModelServerRoomProcessor::processHello(JID userId)
-{
-	JCode code = m_roomManager->addUser(userId);
+	JCode code = JRoomManager::instance()->addUser(userId);
 	if(ESuccess == code){
-		getSession()->setUserId(userId);
+		socket->session()->setUserId(userId);
 	}
-	replyHello(code);
+	replyHello(socket , code);
 }
 
-void JRoomModelServerRoomProcessor::processRoomList()
+void JRoomModelServerRoomProcessor::processRoomList(JSocket* socket)
 {
-	replyRoomList(m_roomManager->getRoomList());
+	replyRoomList(socket,JRoomManager::instance()->getRoomList());
 }
 
-void JRoomModelServerRoomProcessor::processAddRoom(const JRoom& room)
+void JRoomModelServerRoomProcessor::processAddRoom(JSocket* socket , const JRoom& room)
 {
-	JID roomId = m_roomManager->addRoom(room);
-	replyAddRoom(roomId);
+	JID roomId = JRoomManager::instance()->addRoom(room);
+	replyAddRoom(socket,roomId);
 }
 
-void JRoomModelServerRoomProcessor::processEnterRoom(JID roomId)
+void JRoomModelServerRoomProcessor::processEnterRoom(JSocket* socket , JID roomId)
 {
-    JID userId = getSession()->getUserId();
-    JID formerRoomId = m_roomManager->getRoomByUserId(userId);
-    JCode code = m_roomManager->enterRoom(userId,roomId);
+    JID userId = socket->session()->userId();
+    JID formerRoomId = JRoomManager::instance()->getRoomByUserId(userId);
+    JCode code = JRoomManager::instance()->enterRoom(userId,roomId);
     if(ESuccess == code){
-        JServerApplicationBase *formerapp = m_roomManager->getApplication(formerRoomId);
+        JServerApplicationBase *formerapp = JRoomManager::instance()->getApplication(formerRoomId);
         if(NULL != formerapp){
-            disconnect(formerapp,SIGNAL(roomChat(JID,JID,QString)),this,SLOT(on_application_roomChat(JID,JID,QString)));
-            disconnect(formerapp,
-                       SIGNAL(sendGameData(QByteArray)),
-                       getPairedGameDataProcessor(),
-                       SLOT(sendGameData(QByteArray)));
+//            disconnect(formerapp,SIGNAL(roomChat(JID,JID,QString)),this,SLOT(on_application_roomChat(JID,JID,QString)));
+//            disconnect(formerapp,
+//                       SIGNAL(sendGameData(QByteArray)),
+//                       getPairedGameDataProcessor(),
+//                       SLOT(sendGameData(QByteArray)));
         }
-        JServerApplicationBase *app = m_roomManager->getApplication(roomId);
+        JServerApplicationBase *app = JRoomManager::instance()->getApplication(roomId);
         if(NULL != app){
-            connect(app,SIGNAL(roomChat(JID,JID,QString)),SLOT(on_application_roomChat(JID,JID,QString)));
-            connect(app,
-                    SIGNAL(sendGameData(QByteArray)),
-                    getPairedGameDataProcessor(),
-                    SLOT(sendGameData(QByteArray)));
+//            connect(app,SIGNAL(roomChat(JID,JID,QString)),SLOT(on_application_roomChat(JID,JID,QString)));
+//            connect(app,
+//                    SIGNAL(sendGameData(QByteArray)),
+//                    getPairedGameDataProcessor(),
+//                    SLOT(sendGameData(QByteArray)));
             app->afterEnterRoom(userId);
         }
     }
-    replyEnterRoom(roomId,code);
+    replyEnterRoom(socket,roomId,code);
 }
 
-void JRoomModelServerRoomProcessor::processRoomInfo(JID roomId)
+void JRoomModelServerRoomProcessor::processRoomInfo(JSocket* socket , JID roomId)
 {
-    const JRoom& room = m_roomManager->getRoom(roomId);
-    sendRoomInfo(room);
+    const JRoom& room = JRoomManager::instance()->getRoom(roomId);
+    sendRoomInfo(socket,room);
 }
 
-void JRoomModelServerRoomProcessor::processRoomChat(const QString& text)
+void JRoomModelServerRoomProcessor::processRoomChat(JSocket* socket , const QString& text)
 {
-    JID userId = getSession()->getUserId();
-    m_roomManager->receiveRoomChat(userId,text);
+    JID userId = socket->session()->userId();
+    JRoomManager::instance()->receiveRoomChat(userId,text);
 }
 
-void JRoomModelServerRoomProcessor::replyHello(JCode result)
+void JRoomModelServerRoomProcessor::replyHello(JSocket* socket , JCode result)
 {
 	QByteArray outdata;
 	QDataStream outstream(&outdata,QIODevice::WriteOnly);
 	outstream<<(JID)ERP_Hello;
 	outstream<<result;
-	sendData(outdata);
+	sendData(socket,outdata);
 }
 
-void JRoomModelServerRoomProcessor::replyRoomList(const QList<JRoom>& roomlist)
+void JRoomModelServerRoomProcessor::replyRoomList(JSocket* socket , const QList<JRoom>& roomlist)
 {
 	QByteArray outdata;
 	QDataStream outstream(&outdata,QIODevice::WriteOnly);
 	outstream<<(JID)ERP_RoomList;
 	outstream<<roomlist;
-	sendData(outdata);
+	sendData(socket,outdata);
 }
 
-void JRoomModelServerRoomProcessor::replyAddRoom(JID roomId)
+void JRoomModelServerRoomProcessor::replyAddRoom(JSocket* socket , JID roomId)
 {
 	QByteArray outdata;
 	QDataStream outstream(&outdata,QIODevice::WriteOnly);
 	outstream<<(JID)ERP_AddRoom;
 	outstream<<roomId;
-	sendData(outdata);
+	sendData(socket,outdata);
 }
 
-void JRoomModelServerRoomProcessor::replyEnterRoom(JID roomId,JCode code)
+void JRoomModelServerRoomProcessor::replyEnterRoom(JSocket* socket , JID roomId,JCode code)
 {
 	QByteArray outdata;
 	QDataStream outstream(&outdata,QIODevice::WriteOnly);
 	outstream<<(JID)ERP_EnterRoom;
     outstream<<roomId;
 	outstream<<code;
-	sendData(outdata);
+	sendData(socket,outdata);
 }
 
-void JRoomModelServerRoomProcessor::sendRoomInfo(const JRoom& room)
+void JRoomModelServerRoomProcessor::sendRoomInfo(JSocket* socket , const JRoom& room)
 {
     QByteArray outdata;
     QDataStream outstream(&outdata,QIODevice::WriteOnly);
     outstream<<(JID)ERP_RoomInfo;
     outstream<<room;
-    sendData(outdata);
+    sendData(socket,outdata);
 }
 
-void JRoomModelServerRoomProcessor::sendRoomRemoved(JID roomId)
+void JRoomModelServerRoomProcessor::sendRoomRemoved(JSocket* socket , JID roomId)
 {
 	QByteArray outdata;
 	QDataStream outstream(&outdata,QIODevice::WriteOnly);
 	outstream<<(JID)ERP_RoomRemoved;
 	outstream<<roomId;
-	sendData(outdata);
+	sendData(socket,outdata);
 }
 
-void JRoomModelServerRoomProcessor::sendRoomChat(JID userId,JID roomId,const QString& text)
+void JRoomModelServerRoomProcessor::sendRoomChat(JSocket* socket , JID userId,JID roomId,const QString& text)
 {
     QByteArray outdata;
     QDataStream outstream(&outdata,QIODevice::WriteOnly);
@@ -219,32 +211,25 @@ void JRoomModelServerRoomProcessor::sendRoomChat(JID userId,JID roomId,const QSt
     outstream<<userId;
     outstream<<roomId;
     outstream<<text;
-    sendData(outdata);
+    sendData(socket,outdata);
 }
 
-void JRoomModelServerRoomProcessor::on_roommanager_roomAdded(const JRoom& room)
-{
-    sendRoomInfo(room);
-}
+//void JRoomModelServerRoomProcessor::on_roommanager_roomAdded(const JRoom& room)
+//{
+//    sendRoomInfo(room);
+//}
 
-void JRoomModelServerRoomProcessor::on_roommanager_roomRemoved(JID roomId)
-{
-	sendRoomRemoved(roomId);
-}
+//void JRoomModelServerRoomProcessor::on_roommanager_roomRemoved(JID roomId)
+//{
+//	sendRoomRemoved(roomId);
+//}
 
-void JRoomModelServerRoomProcessor::on_roommanager_roomUpdated(const JRoom& room)
-{
-    sendRoomInfo(room);
-}
+//void JRoomModelServerRoomProcessor::on_roommanager_roomUpdated(const JRoom& room)
+//{
+//    sendRoomInfo(room);
+//}
 
-void JRoomModelServerRoomProcessor::on_application_roomChat(JID userId,JID roomId,const QString& text)
-{
-    sendRoomChat(userId,roomId,text);
-}
-
-void JRoomModelServerRoomProcessor::on_socket_disconnected()
-{
-    JID userId = getSession()->getUserId();
-    m_roomManager->enterRoom(userId,-1);
-    m_roomManager->removeUser(userId);
-}
+//void JRoomModelServerRoomProcessor::on_application_roomChat(JID userId,JID roomId,const QString& text)
+//{
+//    sendRoomChat(userId,roomId,text);
+//}
