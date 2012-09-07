@@ -26,7 +26,7 @@ private slots:
     void on_btn_addroom_clicked();
     void On_processor_receiveHelloResult(JCode result);
     void On_processor_receiveAddRoomResult(JID roomId);
-    void On_processor_receiveEnterRoomResult(JID roomId,JCode result);
+    void On_processor_receiveEnterRoom(JID userId,JID roomId,JCode result);
 };
 
 #endif // JROOMWIDGET_H

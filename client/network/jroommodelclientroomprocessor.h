@@ -20,7 +20,7 @@ signals:
 	void receiveHelloResult(JCode result);
 	void receiveRoomList(const QList<JRoom>& roomlist);
     void receiveAddRoomResult(JID roomId);
-    void receiveEnterRoomResult(JID roomId,JCode result);
+    void receiveEnterRoom(JID userId,JID roomId,JCode result);
     void receiveRoomInfo(const JRoom& room);
     void receiveRoomRemoved(JID roomId);
     void receiveRoomChat(JID userId,JID roomId,const QString& text);
@@ -33,7 +33,7 @@ protected:
 	virtual void processHello(JCode result);
 	virtual void processRoomList(const QList<JRoom>& roomlist);
     virtual void processAddRoom(JID roomId);
-    virtual void processEnterRoom(JID roomId,JCode code);
+    virtual void processEnterRoom(JID userId,JID roomId,JCode code);
     virtual void processRoomInfo(const JRoom& room);
 	virtual void processRoomRemoved(JID roomId);
 };

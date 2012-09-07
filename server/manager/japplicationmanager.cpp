@@ -20,6 +20,7 @@ JApplicationManager* JApplicationManager::getInstance()
 	return instance;
 }
 
+/*
 JCode JApplicationManager::enterRoom(JID userId,JID roomId)
 {
 	if(!m_apps.contains(roomId)){
@@ -37,6 +38,7 @@ JCode JApplicationManager::escapeRoom(JID userId,JID roomId)
     JServerApplicationBase* app= m_apps.value(roomId);
     return app->escapeRoom(userId);
 }
+*/
 
 JCode JApplicationManager::addRoom(JRoom& room)
 {

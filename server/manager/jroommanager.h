@@ -7,9 +7,11 @@
 #include <QObject>
 #include <QList>
 #include <QMap>
+#include <QSet>
 
 class JApplicationManager;
 class JServerApplicationBase;
+class JSocket;
 
 class JRoomManager : public QObject
 {
@@ -23,13 +25,14 @@ public:
     int getUserAt(JID userId)const;
 	QList<JRoom> getRoomList()const;
     QList<JID> getUserListInRoom(JID roomId)const;
-    JCode enterRoom(JID userId,JID roomId);
+    JCode enterRoom(JID userId,JID roomId,JSocket* socket);
     JRoom getRoom(JID roomId)const;
-    //JCode escapeRoom(JID userId,JID roomId); no such function , cause enter room -1 means escape.
 
     // about applicaton
     JServerApplicationBase* getApplication(JID roomId)const;
-    void receiveRoomChat(JID userId,const QString& text);
+    
+    // about socket
+    QSet<JSocket*> getSocketListInRoom(JID roomId);
 signals:
 	void roomAdded(const JRoom& room);
 	void roomRemoved(JID roomId);
@@ -39,6 +42,7 @@ private:
 	JApplicationManager* m_applicationManager;
 	QMap<JID,JID> m_UserToRoom;
 	QMap<JID,JRoom> m_rooms;
+	QMap<JID,QSet<JSocket*> > m_socketListInRoom;
 };
 
 #endif // JROOMMANAGER_H

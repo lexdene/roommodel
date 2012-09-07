@@ -29,7 +29,7 @@ private:
 	void replyHello(JSocket* socket , JCode result);
 	void replyRoomList(JSocket* socket , const QList<JRoom>& roomlist);
     void replyAddRoom(JSocket* socket , JID roomId);
-    void replyEnterRoom(JSocket* socket , JID roomId,JCode code);
+    void sendEnterRoom(JSocket* socket , JID userId,JID roomId,JCode code);
     void sendRoomInfo(JSocket* socket , const JRoom& room);
     void sendRoomRemoved(JSocket* socket , JID roomId);
     void sendRoomChat(JSocket* socket , JID userId,JID roomId,const QString& text);

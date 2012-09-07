@@ -2,9 +2,7 @@
 
 #include "../common/jroom.h"
 #include "../common/jroomprotocol.h"
-#include "application/jserverapplicationbase.h"
 #include "manager/jroommanager.h"
-#include "jroommodelservergamedataprocessor.h"
 
 #include <Session/JSession>
 #include <Global/ErrorCode>
@@ -112,28 +110,35 @@ void JRoomModelServerRoomProcessor::processAddRoom(JSocket* socket , const JRoom
 void JRoomModelServerRoomProcessor::processEnterRoom(JSocket* socket , JID roomId)
 {
     JID userId = socket->session()->userId();
-    JID formerRoomId = JRoomManager::instance()->getRoomByUserId(userId);
-    JCode code = JRoomManager::instance()->enterRoom(userId,roomId);
-    if(ESuccess == code){
-        JServerApplicationBase *formerapp = JRoomManager::instance()->getApplication(formerRoomId);
-        if(NULL != formerapp){
+//    JID formerRoomId = JRoomManager::instance()->getRoomByUserId(userId);
+    JCode code = JRoomManager::instance()->enterRoom(userId,roomId,socket);
+//    if(ESuccess == code){
+//        JServerApplicationBase *formerapp = JRoomManager::instance()->getApplication(formerRoomId);
+//        if(NULL != formerapp){
 //            disconnect(formerapp,SIGNAL(roomChat(JID,JID,QString)),this,SLOT(on_application_roomChat(JID,JID,QString)));
 //            disconnect(formerapp,
 //                       SIGNAL(sendGameData(QByteArray)),
 //                       getPairedGameDataProcessor(),
 //                       SLOT(sendGameData(QByteArray)));
-        }
-        JServerApplicationBase *app = JRoomManager::instance()->getApplication(roomId);
-        if(NULL != app){
+//        }
+//        JServerApplicationBase *app = JRoomManager::instance()->getApplication(roomId);
+//        if(NULL != app){
 //            connect(app,SIGNAL(roomChat(JID,JID,QString)),SLOT(on_application_roomChat(JID,JID,QString)));
 //            connect(app,
 //                    SIGNAL(sendGameData(QByteArray)),
 //                    getPairedGameDataProcessor(),
 //                    SLOT(sendGameData(QByteArray)));
-            app->afterEnterRoom(userId);
+//            app->afterEnterRoom(userId);
+//        }
+//    }
+    if( ESuccess == code ){
+        JRoomManager *rm = JRoomManager::instance();
+        foreach(JSocket *sendSocket,rm->getSocketListInRoom( roomId ) ){
+            sendEnterRoom( sendSocket , userId , roomId , code );
         }
+    }else{
+        sendEnterRoom(socket,userId,roomId,code);
     }
-    replyEnterRoom(socket,roomId,code);
 }
 
 void JRoomModelServerRoomProcessor::processRoomInfo(JSocket* socket , JID roomId)
@@ -144,8 +149,14 @@ void JRoomModelServerRoomProcessor::processRoomInfo(JSocket* socket , JID roomId
 
 void JRoomModelServerRoomProcessor::processRoomChat(JSocket* socket , const QString& text)
 {
+    JRoomManager *rm = JRoomManager::instance();
     JID userId = socket->session()->userId();
-    JRoomManager::instance()->receiveRoomChat(userId,text);
+    JID roomId = rm->getRoomByUserId(userId);
+    foreach(JSocket *socket,rm->getSocketListInRoom( roomId ) ){
+        qDebug()<<__FUNCTION__<<__LINE__;
+        sendRoomChat( socket , userId , roomId , text );
+        qDebug()<<__FUNCTION__<<__LINE__;
+    }
 }
 
 void JRoomModelServerRoomProcessor::replyHello(JSocket* socket , JCode result)
@@ -175,11 +186,12 @@ void JRoomModelServerRoomProcessor::replyAddRoom(JSocket* socket , JID roomId)
 	sendData(socket,outdata);
 }
 
-void JRoomModelServerRoomProcessor::replyEnterRoom(JSocket* socket , JID roomId,JCode code)
+void JRoomModelServerRoomProcessor::sendEnterRoom(JSocket* socket , JID userId , JID roomId,JCode code)
 {
 	QByteArray outdata;
 	QDataStream outstream(&outdata,QIODevice::WriteOnly);
 	outstream<<(JID)ERP_EnterRoom;
+	outstream<<userId;
     outstream<<roomId;
 	outstream<<code;
 	sendData(socket,outdata);

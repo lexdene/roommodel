@@ -87,27 +87,55 @@ QList<JID> JRoomManager::getUserListInRoom(JID roomId)const
     return room.getUserList();
 }
 
-JCode JRoomManager::enterRoom(JID userId,JID roomId)
+JCode JRoomManager::enterRoom(JID userId,JID roomId,JSocket* socket)
 {
     JCode code;
     if(roomId<0){
         JID formerRoomId = m_UserToRoom[userId];
-        code = m_applicationManager->escapeRoom(userId,formerRoomId);
+        JServerApplicationBase *formerapp = getApplication(formerRoomId);
+        qDebug()<<__FUNCTION__<<__LINE__;
+        if( NULL == formerapp ){
+            code = ERoomIdNotExist;
+        }else{
+            code = formerapp->escapeRoom(userId);
+        }
+        qDebug()<<__FUNCTION__<<__LINE__;
         if(ESuccess == code){
             m_UserToRoom[userId]=roomId;
             JRoom& room = m_rooms[formerRoomId];
             //room.rNum()--;
             room.removeUser(userId);
+            // socket
+            qDebug()<<"roomId:"<<formerRoomId;
+            qDebug()<<__FUNCTION__<<__LINE__<<m_socketListInRoom[formerRoomId].size();
+            m_socketListInRoom[formerRoomId].remove(socket);
+            qDebug()<<__FUNCTION__<<__LINE__<<m_socketListInRoom[formerRoomId].size();
+            // afterEscapeRoom;
+            formerapp->afterEscapeRoom(userId);
+            // signal
             emit roomUpdated(room);
         }
     }else{
-        if(m_UserToRoom[userId]<0){
-            code = m_applicationManager->enterRoom(userId,roomId);
+        JServerApplicationBase *app = getApplication(roomId);
+        if( NULL == app ){
+            code = ERoomIdNotExist;
+        }else if(m_UserToRoom[userId]<0){
+            qDebug()<<__FUNCTION__<<__LINE__;
+            code = app->enterRoom(userId);
+            qDebug()<<__FUNCTION__<<__LINE__;
             if(ESuccess == code){
                 m_UserToRoom[userId]=roomId;
                 JRoom& room = m_rooms[roomId];
                 //room.rNum()++;
                 room.addUser(userId);
+                // socket
+                qDebug()<<"roomId:"<<roomId;
+                qDebug()<<__FUNCTION__<<__LINE__<<m_socketListInRoom[roomId].size();
+                m_socketListInRoom[roomId].insert(socket);
+                qDebug()<<__FUNCTION__<<__LINE__<<m_socketListInRoom[roomId].size();
+                // afterEnterRoom
+                app->afterEnterRoom(userId);
+                // signal
                 emit roomUpdated(room);
             }
         }else{
@@ -127,16 +155,8 @@ JServerApplicationBase* JRoomManager::getApplication(JID roomId)const
     return m_applicationManager->getApplication(roomId);
 }
 
-void JRoomManager::receiveRoomChat(JID userId,const QString& text)
-{
-    JID roomId = getRoomByUserId(userId);
-    JServerApplicationBase* app = getApplication(roomId);
-    if(NULL == app)
-    {
-        qDebug()<<"JRoomManager::receiveRoomChat : application is NULL : roomId="<<roomId;
-        return;
-    }
-    app->receiveRoomChat(userId,text);
+QSet<JSocket*> JRoomManager::getSocketListInRoom(JID roomId){
+    return m_socketListInRoom[roomId];
 }
 
 JRoomManager::JRoomManager(QObject *parent) :

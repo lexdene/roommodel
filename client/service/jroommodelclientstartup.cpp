@@ -3,7 +3,6 @@
 
 #include <Socket/JMainClientSocket>
 #include <Util/SHost>
-#include <Util/JElapsedTimer>
 #include <Helper/JConnectHelper>
 #include <Helper/JGameClientArgumentAnalyser>
 

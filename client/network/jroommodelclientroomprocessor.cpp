@@ -95,11 +95,13 @@ void JRoomModelClientRoomProcessor::process(JSocket* , const QByteArray& data)
 		break;
 	case ERP_EnterRoom:
 		{
+            JID userId;
             JID roomId;
 			JCode code;
+			stream>>userId;
             stream>>roomId;
 			stream>>code;
-            processEnterRoom(roomId,code);
+            processEnterRoom(userId,roomId,code);
 		}
 		break;
     case ERP_RoomInfo:
@@ -152,9 +154,9 @@ void JRoomModelClientRoomProcessor::processAddRoom(JID roomId)
 	emit receiveAddRoomResult(roomId);
 }
 
-void JRoomModelClientRoomProcessor::processEnterRoom(JID roomId,JCode code)
+void JRoomModelClientRoomProcessor::processEnterRoom(JID userId,JID roomId,JCode code)
 {
-    emit receiveEnterRoomResult(roomId,code);
+    emit receiveEnterRoom(userId,roomId,code);
 }
 
 void JRoomModelClientRoomProcessor::processRoomInfo(const JRoom& room)

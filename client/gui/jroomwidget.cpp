@@ -25,8 +25,8 @@ JRoomWidget::JRoomWidget(QWidget *parent) :
             SIGNAL(receiveAddRoomResult(JID)),
             SLOT(On_processor_receiveAddRoomResult(JID)));
     connect(m_processor,
-            SIGNAL(receiveEnterRoomResult(JID,JCode)),
-            SLOT(On_processor_receiveEnterRoomResult(JID,JCode)));
+            SIGNAL(receiveEnterRoom(JID,JID,JCode)),
+            SLOT(On_processor_receiveEnterRoom(JID,JID,JCode)));
     ui->setupUi(this);
 	JRoomListModel* model = new JRoomListModel(this);
 	ui->tableView_roomlist->setModel(model);
@@ -106,8 +106,11 @@ void JRoomWidget::On_processor_receiveAddRoomResult(JID roomId)
     }
 }
 
-void JRoomWidget::On_processor_receiveEnterRoomResult(JID roomId,JCode result)
+void JRoomWidget::On_processor_receiveEnterRoom(JID userId,JID roomId,JCode result)
 {
+    if(userId != JGameClientArgumentAnalyser::instance()->getUserId()){
+        return ;
+    }
     switch(result){
     case ESuccess:
         emit enterRoom(roomId);

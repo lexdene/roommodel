@@ -15,8 +15,6 @@ class JApplicationManager : public QObject
     Q_OBJECT
 public:
 	static JApplicationManager* getInstance();
-	JCode enterRoom(JID userId,JID roomId);
-    JCode escapeRoom(JID userId,JID roomId);
 	JCode addRoom(JRoom& room);
     void processGameData(JID roomId,int at,const QByteArray& data);
 
